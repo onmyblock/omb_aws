@@ -1,3 +1,22 @@
 {
-  
+  "AutoScalingGroupInstanceId": {
+    "Default":     "i-b2999fbd",
+    "Description": "Auto scaling group instance ID",
+    "Type":        "String"
+  },
+  "LoadBalancerName": {
+    "Default":     "LoadBalancerName1",
+    "Description": "Load balancer name",
+    "Type":        "String"
+  },
+  "SubnetId": {
+    "Default":     "subnet-4ff4372a",
+    "Description": "Subnet ID",
+    "Type":        "String"
+  },
+  "USWest2CustomImageId": {
+    "Default":     "ami-35501205",
+    "Description": "Custom AMI ID",
+    "Type":        "String"
+  }
 }

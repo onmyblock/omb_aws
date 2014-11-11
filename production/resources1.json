@@ -1,0 +1,25 @@
+{
+  "VPC1": {
+    "Type": "AWS::EC2::VPC",
+    "Properties": {
+      "CidrBlock": "10.0.0.0/24"
+    }
+  },
+  "VPCPeeringConnection1": {
+    "Type": "AWS::EC2::VPCPeeringConnection",
+     "Properties" : {
+        "PeerVpcId" : {
+          "Ref": "PeerVpcId"
+        },
+        "VpcId": ""
+     }
+  },
+  "EC2Instance1": {
+    "Type": "AWS::EC2::Instance",
+    "Properties": {
+      "ImageId": {
+        "Ref": "USWest2CustomImageId"
+      }
+    }
+  }
+}

@@ -2,5 +2,7 @@
   "Description": "AWS CloudFormation",
   "Parameters": {{parameters}},
   "Mappings": {{mappings}},
-  "Resources": {{resources}}
+  "Conditions": {{conditions}},
+  "Resources": {{resources}},
+  "Outputs": {{outputs}}
 }

@@ -1,10 +1,39 @@
 {
-  "EC2Instance1": {
-    "Type": "AWS::EC2::Instance",
+  "AutoScalingGroup1": {
+    "Type": "AWS::AutoScaling::AutoScalingGroup",
     "Properties": {
-      "ImageId": {
-        "Fn::FindInMap": ["RegionMap", { "Ref": "AWS::Region" }, "64"]
+      "AvailabilityZones": ["us-west-2a"],
+      "Cooldown": "500",
+      "DesiredCapacity": "5",
+      "HealthCheckGracePeriod": 1000,
+      "InstanceId": { "Ref": "AutoScalingGroupInstanceId" },
+      "LoadBalancerNames": [{ "Ref": "LoadBalancerName" }],
+      "MaxSize" : "10",
+      "MinSize" : "5",
+      "VPCZoneIdentifier": [{ "Ref": "SubnetId" }]
+    },
+    "UpdatePolicy" : {
+      "AutoScalingRollingUpdate": {
+         "MaxBatchSize":          "1",
+         "MinInstancesInService": "1"
       }
+   }
+  },
+  "ElasticLoadBalancer1": {
+    "Type": "AWS::ElasticLoadBalancing::LoadBalancer",
+    "Properties": {
+      "LoadBalancerName": { "Ref": "LoadBalancerName" },
+      "Listeners": [
+        {
+          "InstancePort":     "80",
+          "InstanceProtocol": "http",
+          "LoadBalancerPort": "80",
+          "Protocol":         "http"
+        }
+      ],
+      "Subnets": [
+        { "Ref": "SubnetId" }
+      ]
     }
   }
 }

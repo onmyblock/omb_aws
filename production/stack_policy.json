@@ -1,0 +1,15 @@
+{
+  "Statement": [
+    {
+      "Effect":    "Deny",
+      "Action":    ["Update:Replace"],
+      "Principal": "*",
+      "Resource":  "*",
+      "Condition": {
+        "StringEquals": {
+          "ResourceType": ["AWS::AutoScaling::AutoScalingGroup"]
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,98 @@
+{
+  "EC2InstanceNat": {
+    "Type": "AWS::EC2::Instance",
+    "Properties": {
+      "ImageId":      { "Ref": "NatAmiId" },
+      "InstanceType": "t1.micro",
+      "SecurityGroupIds": [
+        { "Ref": "SecurityGroup1" }
+      ],
+      "SubnetId": { "Ref": "SubnetPublic" }
+    }
+  },
+  "InternetGateway": {
+    "Type": "AWS::EC2::InternetGateway",
+    "Properties": {
+      "Tags": [
+        {
+          "Key":   "Environment",
+          "Value": { "Ref": "Environment" }
+        },
+        {
+          "Key":   "Version",
+          "Value": { "Ref": "Version" }
+        }
+      ]
+    }
+  },
+  "RouteTable": {
+    "Type": "AWS::EC2::RouteTable",
+    "Properties": {
+      "VpcId": { "Ref": "VirtualPrivateCloudOnMyBlock" }
+    }
+  },
+  "SecurityGroup1": {
+    "Type": "AWS::EC2::SecurityGroup",
+    "Properties": {
+      "GroupDescription": "Security Group 1",
+      "SecurityGroupEgress": [
+        {
+          "CidrIp":     "0.0.0.0/0",
+          "FromPort":   80,
+          "IpProtocol": "tcp",
+          "ToPort":     80
+        }
+      ],
+      "SecurityGroupIngress": [
+        {
+          "CidrIp":     "0.0.0.0/0",
+          "FromPort":   80,
+          "IpProtocol": "tcp",
+          "ToPort":     80
+        }
+      ],
+      "VpcId": { "Ref": "VirtualPrivateCloudOnMyBlock" }
+    }
+  },
+  "SubnetPrivate": {
+    "Type": "AWS::EC2::Subnet",
+    "Properties": {
+      "CidrBlock": { "Ref": "SubnetPrivateCidrBlock" },
+      "VpcId":     { "Ref": "VirtualPrivateCloudOnMyBlock" }
+    }
+  },
+  "SubnetPublic": {
+    "Type": "AWS::EC2::Subnet",
+    "Properties": {
+      "CidrBlock": { "Ref": "SubnetPublicCidrBlock" },
+      "VpcId":     { "Ref": "VirtualPrivateCloudOnMyBlock" }
+    }
+  },
+  "SubnetRouteTableAssociationPrivate": {
+    "Type": "AWS::EC2::SubnetRouteTableAssociation",
+    "Properties": {
+      "RouteTableId": { "Ref": "RouteTable" },
+      "SubnetId":     { "Ref": "SubnetPrivate" }
+    }
+  },
+  "SubnetRouteTableAssociationPublic": {
+    "Type": "AWS::EC2::SubnetRouteTableAssociation",
+    "Properties": {
+      "RouteTableId": { "Ref": "RouteTable" },
+      "SubnetId":     { "Ref": "SubnetPublic" }
+    }
+  },
+  "VirtualPrivateCloudOnMyBlock": {
+    "Type": "AWS::EC2::VPC",
+    "Properties": {
+      "CidrBlock": { "Ref": "VpcCidrBlock" }
+    }
+  },
+  "VirtualPrivateCloudGatewayAttachment": {
+    "Type": "AWS::EC2::VPCGatewayAttachment",
+    "Properties": {
+      "InternetGatewayId": { "Ref": "InternetGateway" },
+      "VpcId":             { "Ref": "VirtualPrivateCloudOnMyBlock" }
+    }
+  }
+}

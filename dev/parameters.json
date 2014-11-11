@@ -1,0 +1,32 @@
+{
+  "Environment": {
+    "Default":     "dev",
+    "Description": "Environment",
+    "Type":        "String"
+  },
+  "NatAmiId": {
+    "Default":     "ami-030f4133",
+    "Description": "AMI ID for Nat",
+    "Type":        "String"
+  },
+  "SubnetPrivateCidrBlock": {
+    "Default":     "10.1.0.1/24",
+    "Description": "CIDR Block for private subnet",
+    "Type":        "String"
+  },
+  "SubnetPublicCidrBlock": {
+    "Default":     "10.1.254.0/24",
+    "Description": "CIDR Block for public subnet",
+    "Type":        "String"
+  },
+  "Version": {
+    "Default":     "0.0.0",
+    "Description": "Version",
+    "Type":        "String"
+  },
+  "VpcCidrBlock": {
+    "Default":     "10.1.0.0/16",
+    "Description": "CIDR Block for VPC",
+    "Type":        "String"
+  }
+}

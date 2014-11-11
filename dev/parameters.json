@@ -1,7 +1,32 @@
 {
+  "AutoScalingGroupMaxSize": {
+    "Default":     "2",
+    "Description": "Autoscaling group maximum instance size",
+    "Type":        "String"
+  },
+  "AutoScalingGroupMinSize": {
+    "Default":     "1",
+    "Description": "Autoscaling group minimum instance size",
+    "Type":        "String"
+  },
+  "AvailabilityZones": {
+    "Default":     "us-west-2a",
+    "Description": "Availability zones for stack",
+    "Type":        "CommaDelimitedList"
+  },
   "Environment": {
     "Default":     "dev",
     "Description": "Environment",
+    "Type":        "String"
+  },
+  "InstanceAmiId": {
+    "Default":     "ami-030f4133",
+    "Description": "AMI ID for instance",
+    "Type":        "String"
+  },
+  "InstanceCount": {
+    "Default":     "1",
+    "Description": "Autoscaling group desired capacity",
     "Type":        "String"
   },
   "NatAmiId": {
@@ -21,6 +46,11 @@
   },
   "Version": {
     "Default":     "0.0.0",
+    "Description": "Version",
+    "Type":        "String"
+  },
+  "VersionString": {
+    "Default":     "0-0-0",
     "Description": "Version",
     "Type":        "String"
   },

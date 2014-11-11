@@ -1,4 +1,24 @@
 {
+  "AutoScalingGroup": {
+    "Type": "AWS::AutoScaling::AutoScalingGroup",
+    "Properties": {
+      "AvailabilityZones": [
+        { "Fn::Select" : [0, { "Ref": "AvailabilityZones" }] }
+      ],
+      "Cooldown":        "500",
+      "DesiredCapacity": { "Ref": "InstanceCount" },
+      "HealthCheckGracePeriod": 1000,
+      "InstanceId":             { "Ref": "InstanceAmiId" },
+      "LoadBalancerNames": [
+        { "Ref": "ElasticLoadBalancer" }
+      ],
+      "MaxSize": { "Ref": "AutoScalingGroupMaxSize" },
+      "MinSize": { "Ref": "AutoScalingGroupMinSize" },
+      "VPCZoneIdentifier": [
+        { "Ref": "SubnetPrivate" }
+      ]
+    }
+  },
   "EC2InstanceNat": {
     "Type": "AWS::EC2::Instance",
     "Properties": {
@@ -8,6 +28,28 @@
         { "Ref": "SecurityGroup1" }
       ],
       "SubnetId": { "Ref": "SubnetPublic" }
+    }
+  },
+  "ElasticLoadBalancer": {
+    "Type": "AWS::ElasticLoadBalancing::LoadBalancer",
+    "Properties": {
+      "LoadBalancerName": {
+        "Fn::Join": ["-", ["elb", { "Ref": "VersionString" }]]
+      },
+      "Listeners": [
+        {
+          "InstancePort":     "80",
+          "InstanceProtocol": "http",
+          "LoadBalancerPort": "80",
+          "Protocol":         "http"
+        }
+      ],
+      "SecurityGroups": [
+        { "Ref": "SecurityGroup1" }
+      ],
+      "Subnets": [
+        { "Ref": "SubnetPrivate" }
+      ]
     }
   },
   "InternetGateway": {
@@ -57,6 +99,9 @@
   "SubnetPrivate": {
     "Type": "AWS::EC2::Subnet",
     "Properties": {
+      "AvailabilityZone": {
+        "Fn::Select" : [0, { "Ref": "AvailabilityZones" }]
+      },
       "CidrBlock": { "Ref": "SubnetPrivateCidrBlock" },
       "VpcId":     { "Ref": "VirtualPrivateCloudOnMyBlock" }
     }
@@ -64,6 +109,9 @@
   "SubnetPublic": {
     "Type": "AWS::EC2::Subnet",
     "Properties": {
+      "AvailabilityZone": {
+        "Fn::Select" : [0, { "Ref": "AvailabilityZones" }]
+      },
       "CidrBlock": { "Ref": "SubnetPublicCidrBlock" },
       "VpcId":     { "Ref": "VirtualPrivateCloudOnMyBlock" }
     }

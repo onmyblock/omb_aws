@@ -5,6 +5,8 @@ require "getoptlong"
 require "json"
 
 options = {
+  asg_max_size:       4,
+  asg_min_size:       2,
   availability_zones: ["us-west-2a, us-west-2b"],
   cidr_block:         "10.1.0.0/16",
   environment:        "dev",
@@ -15,6 +17,8 @@ options = {
 }
 
 opts = GetoptLong.new(
+  ["--asg_max_size", GetoptLong::OPTIONAL_ARGUMENT],
+  ["--asg_min_size", GetoptLong::OPTIONAL_ARGUMENT],
   ["--availability_zones", GetoptLong::OPTIONAL_ARGUMENT],
   ["--cidr_block", GetoptLong::OPTIONAL_ARGUMENT],
   ["--environment", GetoptLong::OPTIONAL_ARGUMENT],
@@ -26,12 +30,18 @@ opts = GetoptLong.new(
 )
 opts.each do |opt, arg|
   case opt
+  when "--asg_max_size"
+    options[:asg_max_size] = arg
+  when "--asg_min_size"
+    options[:asg_min_size] = arg
   when "--availability_zones"
     options[:availability_zones] = arg.split(",")
   when "--cidr_block"
     options[:cidr_block] = arg
   when "--environment"
     options[:environment] = arg
+  when "--instance_ami_id"
+    options[:instance_ami_id] = arg
   when "--instance_count"
     options[:instance_count] = arg
   when "--nat_ami_id"
@@ -47,6 +57,11 @@ end
 
 if options[:version].nil?
   puts "Missing argument: version"
+  exit 0
+end
+
+if options[:asg_max_size].to_i < options[:asg_min_size].to_i
+  puts "Invalid arguments: asg_max_size cannot be larger than asg_min_size"
   exit 0
 end
 
@@ -102,13 +117,33 @@ options[:regions].each do |region|
 
   begin
     cloudformation_client.validate_template(template_body: template_body)
-    stack_name = 
-      "stack-#{options[:environment]}-#{options[:version].split(".").join("-")}"
+    version_string = options[:version].split(".").join("-")
+    stack_name     = "stack-#{options[:environment]}-#{version_string}"
     stack = cloudformation_resource.create_stack(
       parameters: [
         {
+          parameter_key:   "AutoScalingGroupMaxSize",
+          parameter_value: options[:asg_max_size].to_s
+        },
+        {
+          parameter_key:   "AutoScalingGroupMinSize",
+          parameter_value: options[:asg_min_size].to_s
+        },
+        {
+          parameter_key:   "AvailabilityZones",
+          parameter_value: options[:availability_zones].join(",")
+        },
+        {
           parameter_key:   "Environment",
           parameter_value: options[:environment]
+        },
+        {
+          parameter_key:   "InstanceAmiId",
+          parameter_value: options[:instance_ami_id]
+        },
+        {
+          parameter_key:   "InstanceCount",
+          parameter_value: options[:instance_count].to_s
         },
         {
           parameter_key:   "NatAmiId",
@@ -117,6 +152,10 @@ options[:regions].each do |region|
         {
           parameter_key:   "Version",
           parameter_value: options[:version]
+        },
+        {
+          parameter_key:   "VersionString",
+          parameter_value: version_string
         },
         {
           parameter_key:   "VpcCidrBlock",

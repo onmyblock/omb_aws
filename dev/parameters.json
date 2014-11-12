@@ -20,7 +20,7 @@
     "Type":        "String"
   },
   "InstanceAmiId": {
-    "Default":     "ami-030f4133",
+    "Default":     "ami-3d50120d",
     "Description": "AMI ID for instance",
     "Type":        "String"
   },
@@ -33,6 +33,11 @@
     "Default":     "ami-030f4133",
     "Description": "AMI ID for Nat",
     "Type":        "String"
+  },
+  "PeerVpcIds": {
+    "Default":     "0",
+    "Description": "VPC IDs for peering connection",
+    "Type":        "CommaDelimitedList"
   },
   "SubnetPrivateCidrBlock": {
     "Default":     "10.1.0.1/24",

@@ -13,7 +13,9 @@ options = {
   instance_ami_id:    "ami-3d50120d",
   instance_count:     2,
   nat_ami_id:         "ami-030f4133",
-  regions:            ["us-west-2"]
+  regions:            ["us-west-2"],
+  peer_vpc_ids:       [],
+  version:            nil
 }
 
 opts = GetoptLong.new(
@@ -22,6 +24,7 @@ opts = GetoptLong.new(
   ["--availability_zones", GetoptLong::OPTIONAL_ARGUMENT],
   ["--cidr_block", GetoptLong::OPTIONAL_ARGUMENT],
   ["--environment", GetoptLong::OPTIONAL_ARGUMENT],
+  ["--instance_ami_id", GetoptLong::OPTIONAL_ARGUMENT],
   ["--instance_count", GetoptLong::OPTIONAL_ARGUMENT],
   ["--nat_ami_id", GetoptLong::OPTIONAL_ARGUMENT],
   ["--peer_vpc_ids", GetoptLong::OPTIONAL_ARGUMENT],
@@ -148,6 +151,10 @@ options[:regions].each do |region|
         {
           parameter_key:   "NatAmiId",
           parameter_value: options[:nat_ami_id]
+        },
+        {
+          parameter_key:   "PeerVpcIds",
+          parameter_value: options[:peer_vpc_ids].join(",")
         },
         {
           parameter_key:   "Version",

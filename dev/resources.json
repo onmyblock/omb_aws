@@ -55,6 +55,39 @@
       "SubnetId": { "Ref": "SubnetPrivate" }
     }
   },
+  "EC2InstanceJumpBox": {
+    "Type": "AWS::EC2::Instance",
+    "Properties": {
+      "ImageId":      { "Ref": "JumpBoxAmiId" },
+      "InstanceType": "t1.micro",
+      "SecurityGroupIds": [
+        { "Ref": "SecurityGroup1" }
+      ],
+      "SubnetId": { "Ref": "SubnetPrivate" },
+      "Tags": [
+        {
+          "Key":   "Environment",
+          "Value": { "Ref": "Environment" }
+        },
+        {
+          "Key":   "Name",
+          "Value": {
+            "Fn::Join": ["-", 
+              [
+                "jumpbox", 
+                { "Ref": "Environment" },
+                { "Ref": "VersionString" }
+              ]
+            ]
+          }
+        },
+        {
+          "Key":   "Version",
+          "Value": { "Ref": "Version" }
+        }
+      ]
+    }
+  },
   "EC2InstanceNat": {
     "Type": "AWS::EC2::Instance",
     "Properties": {
@@ -116,6 +149,35 @@
       ]
     }
   },
+  "ElasticIpJumpBox": {
+    "Type": "AWS::EC2::EIP",
+    "Properties": {
+      "InstanceId": { "Ref": "EC2InstanceJumpBox" },
+      "Domain":     { "Ref": "VirtualPrivateCloudOnMyBlock" },
+      "Tags": [
+        {
+          "Key":   "Environment",
+          "Value": { "Ref": "Environment" }
+        },
+        {
+          "Key":   "Name",
+          "Value": { 
+            "Fn::Join": ["-", 
+              [
+                "jumpbox", 
+                { "Ref": "Environment" }, 
+                { "Ref": "VersionString" }
+              ]
+            ]
+          }
+        },
+        {
+          "Key":   "Version",
+          "Value": { "Ref": "Version" }
+        }
+      ]
+    }
+  },
   "InternetGateway": {
     "Type": "AWS::EC2::InternetGateway",
     "Properties": {
@@ -127,8 +189,8 @@
         {
           "Key":   "Name",
           "Value": { 
-            "Fn::Join": [
-              "-", [
+            "Fn::Join": ["-", 
+              [
                 "ig", 
                 { "Ref": "Environment" }, 
                 { "Ref": "VersionString" }

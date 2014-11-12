@@ -29,9 +29,14 @@
     "Description": "Autoscaling group desired capacity",
     "Type":        "String"
   },
+  "JumpBoxAmiId": {
+    "Default":     "ami-37501207",
+    "Description": "AMI ID for JumpBox instance",
+    "Type":        "String"
+  },
   "NatAmiId": {
     "Default":     "ami-030f4133",
-    "Description": "AMI ID for Nat",
+    "Description": "AMI ID for Nat instance",
     "Type":        "String"
   },
   "PeerVpcIds": {

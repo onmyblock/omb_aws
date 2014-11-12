@@ -7,13 +7,14 @@ require "json"
 options = {
   asg_max_size:       4,
   asg_min_size:       2,
-  availability_zones: ["us-west-2a", "us-west-2b"],
+  availability_zones: ["us-west-1a"],
   cidr_block:         "10.1.0.0/16",
   environment:        "dev",
-  instance_ami_id:    "ami-3d50120d",
+  instance_ami_id:    "ami-076e6542",
   instance_count:     2,
-  nat_ami_id:         "ami-030f4133",
-  regions:            ["us-west-2"],
+  key_name:           "aws_omb_us_west_1",
+  nat_ami_id:         "ami-2b2b296e",
+  regions:            ["us-west-1"],
   peer_vpc_cidr_blocks: nil,
   peer_vpc_ids:         nil,
   version:              nil
@@ -27,6 +28,7 @@ opts = GetoptLong.new(
   ["--environment", GetoptLong::OPTIONAL_ARGUMENT],
   ["--instance_ami_id", GetoptLong::OPTIONAL_ARGUMENT],
   ["--instance_count", GetoptLong::OPTIONAL_ARGUMENT],
+  ["--key_name", GetoptLong::OPTIONAL_ARGUMENT],
   ["--nat_ami_id", GetoptLong::OPTIONAL_ARGUMENT],
   ["--peer_vpc_cidr_blocks", GetoptLong::OPTIONAL_ARGUMENT],
   ["--peer_vpc_ids", GetoptLong::OPTIONAL_ARGUMENT],
@@ -49,6 +51,8 @@ opts.each do |opt, arg|
     options[:instance_ami_id] = arg
   when "--instance_count"
     options[:instance_count] = arg
+  when "--key_name"
+    options[:key_name] = arg
   when "--nat_ami_id"
     options[:nat_ami_id] = arg
   when "--peer_vpc_cidr_blocks"
@@ -84,7 +88,12 @@ if options[:asg_max_size].to_i < options[:asg_min_size].to_i
   exit 0
 end
 
-puts options
+puts "-" * 60
+puts "Parameters"
+puts "-" * 30
+options.each do |key, value|
+  puts "#{key}: #{value}"
+end
 
 # Functions
 def string_from_json_file(file_name)
@@ -106,6 +115,7 @@ template_body = string_from_json_file "template"
   template_body.gsub! Regexp.new("{{#{key}}}"), string_from_json_file(key)
 end
 
+version_string = options[:version].split(".").join("-")
 # Insert all variables into JSON string
 [
   {
@@ -136,8 +146,7 @@ options[:regions].each do |region|
 
   begin
     cloudformation_client.validate_template(template_body: template_body)
-    version_string = options[:version].split(".").join("-")
-    stack_name     = "stack-#{options[:environment]}-#{version_string}"
+    stack_name = "stack-#{options[:environment]}-#{version_string}"
     stack = cloudformation_resource.create_stack(
       parameters: [
         {
@@ -163,6 +172,10 @@ options[:regions].each do |region|
         {
           parameter_key:   "InstanceCount",
           parameter_value: options[:instance_count].to_s
+        },
+        {
+          parameter_key:   "KeyName",
+          parameter_value: options[:key_name]
         },
         {
           parameter_key:   "NatAmiId",
@@ -202,9 +215,10 @@ options[:regions].each do |region|
       ],
       template_body: template_body
     )
-    puts stack.name
+    puts "-" * 30
+    puts "Stack: #{stack.name}"
   rescue Exception => e
-    puts e
+    puts "Error: #{e}"
   end
 
   # Find VPC with particular tags

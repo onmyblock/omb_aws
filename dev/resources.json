@@ -59,13 +59,20 @@
   "EC2InstanceJumpBox": {
     "Type": "AWS::EC2::Instance",
     "Properties": {
-      "ImageId":      { "Ref": "JumpBoxAmiId" },
-      "InstanceType": "t1.micro",
+      "ImageId": {
+        "Fn::FindInMap": 
+          ["RegionEC2", { "Ref": "AWS::Region" }, "ImageIdJumpBox"]
+      },
+      "InstanceType": {
+        "Fn::FindInMap":
+          ["RegionEC2", { "Ref": "AWS::Region" }, "InstanceTypeJumpBox"]
+      },
+      "KeyName":      { "Ref": "KeyName" },
       "SecurityGroupIds": [
         { "Ref": "SecurityGroupHttp" },
         { "Ref": "SecurityGroupSsh" }
       ],
-      "SubnetId": { "Ref": "SubnetPrivate" },
+      "SubnetId": { "Ref": "SubnetPublic" },
       "Tags": [
         {
           "Key":   "Environment",
@@ -94,7 +101,10 @@
     "Type": "AWS::EC2::Instance",
     "Properties": {
       "ImageId":      { "Ref": "NatAmiId" },
-      "InstanceType": "t1.micro",
+      "InstanceType": {
+        "Fn::FindInMap":
+          ["RegionEC2", { "Ref": "AWS::Region" }, "InstanceTypeNat"]
+      },
       "SecurityGroupIds": [
         { "Ref": "SecurityGroupHttp" }
       ],
@@ -156,7 +166,7 @@
     "Type": "AWS::EC2::EIP",
     "Properties": {
       "InstanceId": { "Ref": "EC2InstanceJumpBox" },
-      "Domain":     { "Ref": "VirtualPrivateCloudOnMyBlock" }
+      "Domain":     "vpc"
     }
   },
   "InternetGateway": {

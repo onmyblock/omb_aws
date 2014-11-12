@@ -10,7 +10,7 @@
     "Type":        "String"
   },
   "AvailabilityZones": {
-    "Default":     "us-west-2a",
+    "Default":     "us-west-1",
     "Description": "Availability zones for stack",
     "Type":        "CommaDelimitedList"
   },
@@ -20,7 +20,7 @@
     "Type":        "String"
   },
   "InstanceAmiId": {
-    "Default":     "ami-3d50120d",
+    "Default":     "ami-076e6542",
     "Description": "AMI ID for instance",
     "Type":        "String"
   },
@@ -29,13 +29,13 @@
     "Description": "Autoscaling group desired capacity",
     "Type":        "String"
   },
-  "JumpBoxAmiId": {
-    "Default":     "ami-37501207",
-    "Description": "AMI ID for JumpBox instance",
+  "KeyName": {
+    "Default":     "aws_omb_us_west_1",
+    "Description": "Key pair name for SSH into EC2 instance",
     "Type":        "String"
   },
   "NatAmiId": {
-    "Default":     "ami-030f4133",
+    "Default":     "ami-2b2b296e",
     "Description": "AMI ID for Nat instance",
     "Type":        "String"
   },

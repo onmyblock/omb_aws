@@ -12,5 +12,22 @@
     "us-west-2": {
       "AZ": ["us-west-2a", "us-west-2b"]
     }
+  },
+  "RegionEC2": {
+    "us-east-1": {
+      "ImageIdJumpBox":      "ami-9eaa1cf6",
+      "InstanceTypeJumpBox": "t2.micro",
+      "InstanceTypeNat":     "t2.micro"
+    },
+    "us-west-1": {
+      "ImageIdJumpBox":      "ami-076e6542",
+      "InstanceTypeJumpBox": "t2.micro",
+      "InstanceTypeNat":     "t2.micro"
+    },
+    "us-west-2": {
+      "ImageIdJumpBox":      "ami-3d50120d",
+      "InstanceTypeJumpBox": "t2.micro",
+      "InstanceTypeNat":     "t1.micro"
+    }
   }
 }

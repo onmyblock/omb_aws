@@ -50,6 +50,7 @@
     "Properties": {
       "ImageId":      { "Ref": "InstanceAmiId" },
       "InstanceType": "t2.medium",
+      "KeyName": { "Ref": "KeyName" },
       "SecurityGroupIds": [
         { "Ref": "SecurityGroupHttp" }
       ],
@@ -131,6 +132,7 @@
       "SecurityGroupIds": [
         { "Ref": "SecurityGroupHttp" }
       ],
+      "SourceDestCheck": false,
       "SubnetId": { "Ref": "SubnetPublic" },
       "Tags": [
         {
@@ -181,7 +183,7 @@
         { "Ref": "SecurityGroupHttp" }
       ],
       "Subnets": [
-        { "Ref": "SubnetPrivate" }
+        { "Ref": "SubnetPublic" }
       ]
     }
   },
@@ -226,7 +228,23 @@
       ]
     }
   },
-  "RouteTable": {
+  "RouteInternetGatewayPublic": {
+    "Type": "AWS::EC2::Route",
+    "Properties": {
+      "DestinationCidrBlock": "0.0.0.0/0",
+      "GatewayId":            { "Ref": "InternetGateway" },
+      "RouteTableId":         { "Ref": "RouteTablePublic" }
+    }
+  },
+  "RouteNatPrivate": {
+    "Type": "AWS::EC2::Route",
+      "Properties": {
+      "DestinationCidrBlock": "0.0.0.0/0",
+      "InstanceId":           { "Ref": "EC2InstanceNat" },
+      "RouteTableId":         { "Ref": "RouteTablePrivate" }
+    }
+  },
+  "RouteTablePrivate": {
     "Type": "AWS::EC2::RouteTable",
     "Properties": {
       "Tags": [
@@ -239,7 +257,35 @@
           "Value": {
             "Fn::Join": [
               "-", [
-                "rt", 
+                "private", 
+                { "Ref": "Environment" }, 
+                { "Ref": "VersionString" }
+              ]
+            ]
+          }
+        },
+        {
+          "Key":   "Version",
+          "Value": { "Ref": "Version" }
+        }
+      ],
+      "VpcId": { "Ref": "VirtualPrivateCloudOnMyBlock" }
+    }
+  },
+  "RouteTablePublic": {
+    "Type": "AWS::EC2::RouteTable",
+    "Properties": {
+      "Tags": [
+        {
+          "Key":   "Environment",
+          "Value": { "Ref": "Environment" }
+        },
+        {
+          "Key":   "Name",
+          "Value": {
+            "Fn::Join": [
+              "-", [
+                "public", 
                 { "Ref": "Environment" }, 
                 { "Ref": "VersionString" }
               ]
@@ -261,17 +307,17 @@
       "SecurityGroupEgress": [
         {
           "CidrIp":     "0.0.0.0/0",
-          "FromPort":   80,
-          "IpProtocol": "tcp",
-          "ToPort":     80
+          "FromPort":   -1,
+          "IpProtocol": "-1",
+          "ToPort":     -1
         }
       ],
       "SecurityGroupIngress": [
         {
           "CidrIp":     "0.0.0.0/0",
-          "FromPort":   80,
-          "IpProtocol": "tcp",
-          "ToPort":     80
+          "FromPort":   -1,
+          "IpProtocol": "-1",
+          "ToPort":     -1
         }
       ],
       "Tags": [
@@ -303,12 +349,20 @@
     "Type": "AWS::EC2::SecurityGroup",
     "Properties": {
       "GroupDescription": "Security Group SSH",
+      "SecurityGroupEgress": [
+        {
+          "CidrIp":     "0.0.0.0/0",
+          "FromPort":   -1,
+          "IpProtocol": "-1",
+          "ToPort":     -1
+        }
+      ],
       "SecurityGroupIngress": [
         {
           "CidrIp":     "0.0.0.0/0",
-          "FromPort":   22,
-          "IpProtocol": "tcp",
-          "ToPort":     22
+          "FromPort":   -1,
+          "IpProtocol": "-1",
+          "ToPort":     -1
         }
       ],
       "Tags": [
@@ -403,14 +457,14 @@
   "SubnetRouteTableAssociationPrivate": {
     "Type": "AWS::EC2::SubnetRouteTableAssociation",
     "Properties": {
-      "RouteTableId": { "Ref": "RouteTable" },
+      "RouteTableId": { "Ref": "RouteTablePrivate" },
       "SubnetId":     { "Ref": "SubnetPrivate" }
     }
   },
   "SubnetRouteTableAssociationPublic": {
     "Type": "AWS::EC2::SubnetRouteTableAssociation",
     "Properties": {
-      "RouteTableId": { "Ref": "RouteTable" },
+      "RouteTableId": { "Ref": "RouteTablePublic" },
       "SubnetId":     { "Ref": "SubnetPublic" }
     }
   },
@@ -487,7 +541,7 @@
       "DestinationCidrBlock": {
         "Fn::Select": [0, { "Ref": "PeerVpcCidrBlocks" }]
       },
-      "RouteTableId":           { "Ref": "RouteTable" },
+      "RouteTableId":           { "Ref": "RouteTablePrivate" },
       "VpcPeeringConnectionId": { "Ref": "VPCPeeringConnection0" }
     }
   }

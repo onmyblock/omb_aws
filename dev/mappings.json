@@ -16,18 +16,18 @@
   "RegionEC2": {
     "us-east-1": {
       "ImageIdJumpBox":      "ami-9eaa1cf6",
-      "InstanceTypeJumpBox": "t2.micro",
-      "InstanceTypeNat":     "t2.micro"
+      "InstanceTypeJumpBox": "c3.large",
+      "InstanceTypeNat":     "c3.large"
     },
     "us-west-1": {
       "ImageIdJumpBox":      "ami-076e6542",
-      "InstanceTypeJumpBox": "t2.micro",
-      "InstanceTypeNat":     "t2.micro"
+      "InstanceTypeJumpBox": "c3.large",
+      "InstanceTypeNat":     "c3.large"
     },
     "us-west-2": {
       "ImageIdJumpBox":      "ami-3d50120d",
-      "InstanceTypeJumpBox": "t2.micro",
-      "InstanceTypeNat":     "t1.micro"
+      "InstanceTypeJumpBox": "c3.large",
+      "InstanceTypeNat":     "c3.large"
     }
   }
 }

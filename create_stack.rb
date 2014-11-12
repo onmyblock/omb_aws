@@ -14,9 +14,9 @@ options = {
   instance_count:     2,
   key_name:           "aws_omb_us_west_1",
   nat_ami_id:         "ami-2b2b296e",
-  regions:            ["us-west-1"],
   peer_vpc_cidr_blocks: nil,
   peer_vpc_ids:         nil,
+  regions:              ["us-west-1"],
   version:              nil
 }
 

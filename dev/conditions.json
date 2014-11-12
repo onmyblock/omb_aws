@@ -1,0 +1,7 @@
+{
+  "PeerVpcIdsExist": {
+    "Fn::Not": [
+      { "Fn::Equals": [{ "Fn::Select": [0, { "Ref": "PeerVpcIds" }] }, "0"] }
+    ]
+  }
+}

@@ -39,6 +39,11 @@
     "Description": "AMI ID for Nat instance",
     "Type":        "String"
   },
+  "PeerVpcCidrBlocks": {
+    "Default":     "0",
+    "Description": "CIDR Blocks for peer VPCs",
+    "Type":        "CommaDelimitedList"
+  },
   "PeerVpcIds": {
     "Default":     "0",
     "Description": "VPC IDs for peering connection",

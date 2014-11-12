@@ -1,5 +1,8 @@
 {
   "Description": {{description}},
   "Parameters":  {{parameters}},
-  "Resources":   {{resources}}
+  "Mappings":    {{mappings}},
+  "Conditions":  {{conditions}},
+  "Resources":   {{resources}},
+  "Outputs":     {{outputs}}
 }

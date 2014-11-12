@@ -1,16 +1,17 @@
 {
-  "AutoScalingGroup": {
+  "AutoScalingGroupBase": {
     "Type": "AWS::AutoScaling::AutoScalingGroup",
+    "Description": "Auto scaling group base instance",
     "Properties": {
       "AvailabilityZones": [
-        { "Fn::Select" : [0, { "Ref": "AvailabilityZones" }] }
+        { "Fn::Select": [0, { "Ref": "AvailabilityZones" }] }
       ],
       "Cooldown":        "500",
       "DesiredCapacity": { "Ref": "InstanceCount" },
       "HealthCheckGracePeriod": 1000,
       "InstanceId":             { "Ref": "EC2InstanceBase" },
       "LoadBalancerNames": [
-        { "Ref": "ElasticLoadBalancer" }
+        { "Ref": "ElasticLoadBalancerBase" }
       ],
       "MaxSize": { "Ref": "AutoScalingGroupMaxSize" },
       "MinSize": { "Ref": "AutoScalingGroupMinSize" },
@@ -50,7 +51,7 @@
       "ImageId":      { "Ref": "InstanceAmiId" },
       "InstanceType": "t2.medium",
       "SecurityGroupIds": [
-        { "Ref": "SecurityGroup1" }
+        { "Ref": "SecurityGroupHttp" }
       ],
       "SubnetId": { "Ref": "SubnetPrivate" }
     }
@@ -61,7 +62,8 @@
       "ImageId":      { "Ref": "JumpBoxAmiId" },
       "InstanceType": "t1.micro",
       "SecurityGroupIds": [
-        { "Ref": "SecurityGroup1" }
+        { "Ref": "SecurityGroupHttp" },
+        { "Ref": "SecurityGroupSsh" }
       ],
       "SubnetId": { "Ref": "SubnetPrivate" },
       "Tags": [
@@ -94,7 +96,7 @@
       "ImageId":      { "Ref": "NatAmiId" },
       "InstanceType": "t1.micro",
       "SecurityGroupIds": [
-        { "Ref": "SecurityGroup1" }
+        { "Ref": "SecurityGroupHttp" }
       ],
       "SubnetId": { "Ref": "SubnetPublic" },
       "Tags": [
@@ -121,13 +123,14 @@
       ]
     }
   },
-  "ElasticLoadBalancer": {
+  "ElasticLoadBalancerBase": {
     "Type": "AWS::ElasticLoadBalancing::LoadBalancer",
+    "Description": "Elastic load balancer for auto scaling group base",
     "Properties": {
       "LoadBalancerName": {
         "Fn::Join": [
           "-", [
-            "elb", 
+            "base", 
             { "Ref": "Environment" }, 
             { "Ref": "VersionString" }
           ]
@@ -142,7 +145,7 @@
         }
       ],
       "SecurityGroups": [
-        { "Ref": "SecurityGroup1" }
+        { "Ref": "SecurityGroupHttp" }
       ],
       "Subnets": [
         { "Ref": "SubnetPrivate" }
@@ -153,29 +156,7 @@
     "Type": "AWS::EC2::EIP",
     "Properties": {
       "InstanceId": { "Ref": "EC2InstanceJumpBox" },
-      "Domain":     { "Ref": "VirtualPrivateCloudOnMyBlock" },
-      "Tags": [
-        {
-          "Key":   "Environment",
-          "Value": { "Ref": "Environment" }
-        },
-        {
-          "Key":   "Name",
-          "Value": { 
-            "Fn::Join": ["-", 
-              [
-                "jumpbox", 
-                { "Ref": "Environment" }, 
-                { "Ref": "VersionString" }
-              ]
-            ]
-          }
-        },
-        {
-          "Key":   "Version",
-          "Value": { "Ref": "Version" }
-        }
-      ]
+      "Domain":     { "Ref": "VirtualPrivateCloudOnMyBlock" }
     }
   },
   "InternetGateway": {
@@ -233,10 +214,10 @@
       "VpcId": { "Ref": "VirtualPrivateCloudOnMyBlock" }
     }
   },
-  "SecurityGroup1": {
+  "SecurityGroupHttp": {
     "Type": "AWS::EC2::SecurityGroup",
     "Properties": {
-      "GroupDescription": "Security Group 1",
+      "GroupDescription": "Security Group HTTP",
       "SecurityGroupEgress": [
         {
           "CidrIp":     "0.0.0.0/0",
@@ -278,11 +259,48 @@
       "VpcId": { "Ref": "VirtualPrivateCloudOnMyBlock" }
     }
   },
+  "SecurityGroupSsh": {
+    "Type": "AWS::EC2::SecurityGroup",
+    "Properties": {
+      "GroupDescription": "Security Group SSH",
+      "SecurityGroupIngress": [
+        {
+          "CidrIp":     "0.0.0.0/0",
+          "FromPort":   22,
+          "IpProtocol": "tcp",
+          "ToPort":     22
+        }
+      ],
+      "Tags": [
+        {
+          "Key":   "Environment",
+          "Value": { "Ref": "Environment" }
+        },
+        {
+          "Key":   "Name",
+          "Value": {
+            "Fn::Join": [
+              "-", [
+                "ssh", 
+                { "Ref": "Environment" }, 
+                { "Ref": "VersionString" }
+              ]
+            ]
+          }
+        },
+        {
+          "Key":   "Version",
+          "Value": { "Ref": "Version" }
+        }
+      ],
+      "VpcId": { "Ref": "VirtualPrivateCloudOnMyBlock" }
+    }
+  },
   "SubnetPrivate": {
     "Type": "AWS::EC2::Subnet",
     "Properties": {
       "AvailabilityZone": {
-        "Fn::Select" : [0, { "Ref": "AvailabilityZones" }]
+        "Fn::Select": [0, { "Ref": "AvailabilityZones" }]
       },
       "CidrBlock": { "Ref": "SubnetPrivateCidrBlock" },
       "Tags": [
@@ -314,7 +332,7 @@
     "Type": "AWS::EC2::Subnet",
     "Properties": {
       "AvailabilityZone": {
-        "Fn::Select" : [0, { "Ref": "AvailabilityZones" }]
+        "Fn::Select": [0, { "Ref": "AvailabilityZones" }]
       },
       "CidrBlock": { "Ref": "SubnetPublicCidrBlock" },
       "Tags": [
@@ -339,7 +357,7 @@
           "Value": { "Ref": "Version" }
         }
       ],
-      "VpcId":     { "Ref": "VirtualPrivateCloudOnMyBlock" }
+      "VpcId": { "Ref": "VirtualPrivateCloudOnMyBlock" }
     }
   },
   "SubnetRouteTableAssociationPrivate": {
@@ -389,6 +407,48 @@
     "Properties": {
       "InternetGatewayId": { "Ref": "InternetGateway" },
       "VpcId":             { "Ref": "VirtualPrivateCloudOnMyBlock" }
+    }
+  },
+  "VPCPeeringConnection0": {
+    "Type":        "AWS::EC2::VPCPeeringConnection",
+    "Condition":   "PeerVpcIdsExist",
+    "Description": "VPC Peering Connection 1",
+    "Properties": {
+      "PeerVpcId": { "Fn::Select": [0, { "Ref": "PeerVpcIds" }] },
+      "Tags": [
+        {
+          "Key":   "Environment",
+          "Value": { "Ref": "Environment" }
+        },
+        {
+          "Key":   "Name",
+          "Value": {
+            "Fn::Join": ["-",
+              [
+                "peerconnection", 
+                { "Ref": "Environment" }, 
+                { "Ref": "VersionString" }
+              ]
+            ]
+          }
+        },
+        {
+          "Key":   "Version",
+          "Value": { "Ref": "Version" }
+        }
+      ],
+      "VpcId": { "Ref": "VirtualPrivateCloudOnMyBlock" }
+    }
+  },
+  "VPCPeeringConnectionRoute": {
+    "Type":      "AWS::EC2::Route",
+    "Condition": "PeerVpcIdsExist",
+    "Properties": {
+      "DestinationCidrBlock": {
+        "Fn::Select": [0, { "Ref": "PeerVpcCidrBlocks" }]
+      },
+      "RouteTableId":           { "Ref": "RouteTable" },
+      "VpcPeeringConnectionId": { "Ref": "VPCPeeringConnection0" }
     }
   }
 }

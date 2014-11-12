@@ -7,15 +7,16 @@ require "json"
 options = {
   asg_max_size:       4,
   asg_min_size:       2,
-  availability_zones: ["us-west-2a, us-west-2b"],
+  availability_zones: ["us-west-2a", "us-west-2b"],
   cidr_block:         "10.1.0.0/16",
   environment:        "dev",
   instance_ami_id:    "ami-3d50120d",
   instance_count:     2,
   nat_ami_id:         "ami-030f4133",
   regions:            ["us-west-2"],
-  peer_vpc_ids:       [],
-  version:            nil
+  peer_vpc_cidr_blocks: nil,
+  peer_vpc_ids:         nil,
+  version:              nil
 }
 
 opts = GetoptLong.new(
@@ -27,6 +28,7 @@ opts = GetoptLong.new(
   ["--instance_ami_id", GetoptLong::OPTIONAL_ARGUMENT],
   ["--instance_count", GetoptLong::OPTIONAL_ARGUMENT],
   ["--nat_ami_id", GetoptLong::OPTIONAL_ARGUMENT],
+  ["--peer_vpc_cidr_blocks", GetoptLong::OPTIONAL_ARGUMENT],
   ["--peer_vpc_ids", GetoptLong::OPTIONAL_ARGUMENT],
   ["--regions", GetoptLong::OPTIONAL_ARGUMENT],
   ["--version", GetoptLong::REQUIRED_ARGUMENT]
@@ -49,6 +51,8 @@ opts.each do |opt, arg|
     options[:instance_count] = arg
   when "--nat_ami_id"
     options[:nat_ami_id] = arg
+  when "--peer_vpc_cidr_blocks"
+    options[:peer_vpc_cidr_blocks] = arg.split(",")
   when "--peer_vpc_ids"
     options[:peer_vpc_ids] = arg.split(",")
   when "--regions"
@@ -56,6 +60,18 @@ opts.each do |opt, arg|
   when "--version"
     options[:version] = arg
   end
+end
+
+if options[:peer_vpc_cidr_blocks].nil? && options[:peer_vpc_ids].nil?
+  options[:peer_vpc_cidr_blocks] = ["0"]
+  options[:peer_vpc_ids]         = ["0"]
+elsif options[:peer_vpc_cidr_blocks].nil? || options[:peer_vpc_ids].nil?
+  if options[:peer_vpc_cidr_blocks].nil?
+    puts "Missing argument: peer_vpc_cidr_blocks"
+  else
+    puts "Missing argument: peer_vpc_ids"
+  end
+  exit 0
 end
 
 if options[:version].nil?
@@ -153,6 +169,10 @@ options[:regions].each do |region|
           parameter_value: options[:nat_ami_id]
         },
         {
+          parameter_key:   "PeerVpcCidrBlocks",
+          parameter_value: options[:peer_vpc_cidr_blocks].join(",")
+        },
+        {
           parameter_key:   "PeerVpcIds",
           parameter_value: options[:peer_vpc_ids].join(",")
         },
@@ -170,6 +190,16 @@ options[:regions].each do |region|
         }
       ],
       stack_name:    stack_name,
+      tags: [
+        {
+          key:   "Environment",
+          value: options[:environment]
+        },
+        {
+          key:   "Version",
+          value: options[:version]
+        }
+      ],
       template_body: template_body
     )
     puts stack.name

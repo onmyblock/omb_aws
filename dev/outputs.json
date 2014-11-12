@@ -1,0 +1,10 @@
+{
+  "ElasticLoadBalancerBase": {
+    "Description": "Elastic load balancer for auto scaling group base",
+    "Value":       { "Ref": "ElasticLoadBalancerBase" }
+  },
+  "VirtualPrivateCloudOnMyBlock": {
+    "Description": "VPC for OnMyBlock",
+    "Value":       { "Ref": "VirtualPrivateCloudOnMyBlock" }
+  }
+}
